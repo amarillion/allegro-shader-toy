@@ -1,0 +1,3 @@
+[submodule "dtwist"]
+	path = dtwist
+	url = ssh://martijn@amarillion.org:/srv/gitrepo/dtwist
