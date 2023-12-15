@@ -1,0 +1,21 @@
+{
+	"name": "krampus23",
+	"description": "Entry for KrampusHack 2023",
+	"copyright": "Copyright © 2023, martijn",
+	"authors": ["Martijn 'amarillion' van Iersel"],
+	"dependencies" : {
+		"allegro" : "4.0.4+5.2.0.commit.1.g672310c"
+	},
+	"subConfigurations" : {
+		"allegro" : "all-addons"
+	},
+	"sourcePaths" : [
+		"src",
+		"dtwist/src"
+	],
+	"importPath": [
+		"src",
+		"dtwist/src"
+	],
+	"targetType" : "executable"
+}

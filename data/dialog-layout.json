@@ -1,0 +1,45 @@
+[
+	{
+		"type": "panel",
+		"layout": {
+			"rule": "stretch"
+		},
+		"style": {
+			"background": "#00000080" 
+		}
+	}, {
+		"type": "panel",
+		"layout": {
+			"rule": "stretch",
+			"top": 100,
+			"left": 100,
+			"right": 100,
+			"bottom": 100
+		},
+		"style": {
+			"background": "white" 
+		},
+		"children": [{
+			"type": "div",
+			"id": "div_slot", 
+			"layout": {
+				"rule": "stretch",
+				"top": 16,
+				"left": 16,
+				"right": 16,
+				"bottom": 56
+			}
+		}, {
+			"type": "button",
+			"id": "btn_ok",
+			"text": "Ok",
+			"layout": {
+				"rule": "bottom-right",
+				"right": 10,
+				"bottom": 10,
+				"width": 80,
+				"height": 30
+			}
+		}]
+	}
+]

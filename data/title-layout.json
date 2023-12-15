@@ -1,0 +1,40 @@
+[
+	{
+		"type": "desktop",
+		"layout": {
+			"rule": "stretch"
+		},
+		"style": {
+			"background": "#000080" 
+		}
+	}, {
+		"type": "div",
+		"layout": {
+			"rule": "center",
+			"width": 340,
+			"height": 40
+		},
+		"children": [
+			{
+				"id": "btn_start_game",
+				"type": "button",
+				"text": "Start Game",
+				"layout": {
+					"rule": "top-left",
+					"width": 160,
+					"height": 40
+				}
+			}, {
+				"id": "btn_credits",
+				"type": "button",
+				"text": "Credits",
+				"layout": {
+					"rule": "top-left",
+					"left": 180,
+					"width": 160,
+					"height": 40
+				}
+			}
+		]
+	}
+]
