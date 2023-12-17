@@ -8,9 +8,28 @@
 			"background": "#000080" 
 		}
 	}, {
+		"type": "image",
+		"src": "map3",
+		"layout": {
+			"rule": "top-left",
+			"width": 768,
+			"height": 768
+		}
+	}, {
+		"type": "image",
+		"src": "map3_2",
+		"shader": true,
+		"layout": {
+			"rule": "top-left",
+			"width": 768,
+			"height": 768
+		}
+	}, {
 		"type": "div",
 		"layout": {
-			"rule": "center",
+			"rule": "top-right",
+			"top": 20,
+			"right": 20,
 			"width": 340,
 			"height": 40
 		},

@@ -22,6 +22,8 @@ import allegro5.allegro_primitives;
 import allegro5.allegro_font;
 import allegro5.allegro_ttf;
 
+import irisEffect;
+
 import std.json;
 
 import dialog;
@@ -58,9 +60,16 @@ class State : Component {
 					break;
 				}
 				case "image": {
-					ImageComponent img = new ImageComponent(window);
-					img.img = window.resources.bitmaps[eltData["src"].str];
-					div = img;
+					if ("shader" in eltData) {
+						IrisImageComponent img = new IrisImageComponent(window);
+						img.img = window.resources.bitmaps[eltData["src"].str];
+						div = img;
+					}
+					else {
+						ImageComponent img = new ImageComponent(window);
+						img.img = window.resources.bitmaps[eltData["src"].str];
+						div = img;
+					}
 					break;
 				}
 				case "pre": {
@@ -111,7 +120,9 @@ class TitleState : State {
 
 	this(MainLoop window) {
 		super(window);
-		
+
+		IrisEffect.init(window.resources);
+
 		/* MENU */
 		buildDialog(window.resources.getJSON("title-layout"));
 		

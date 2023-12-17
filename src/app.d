@@ -19,6 +19,10 @@ void main()
 		mainloop.resources.addFile("data/style.json");
 		mainloop.resources.addFile("data/title-layout.json");
 		mainloop.resources.addFile("data/dialog-layout.json");
+		mainloop.resources.addFile("data/iris_frag.glsl");
+		mainloop.resources.addFile("data/gradient.png");
+		mainloop.resources.addFile("data/map3.png");
+		mainloop.resources.addFile("data/map3_2.png");
 
 		mainloop.styles.applyResource("style");
 
