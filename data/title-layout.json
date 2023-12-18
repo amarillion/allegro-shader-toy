@@ -35,15 +35,6 @@
 		},
 		"children": [
 			{
-				"id": "btn_start_game",
-				"type": "button",
-				"text": "Start Game",
-				"layout": {
-					"rule": "top-left",
-					"width": 160,
-					"height": 40
-				}
-			}, {
 				"id": "btn_credits",
 				"type": "button",
 				"text": "Credits",

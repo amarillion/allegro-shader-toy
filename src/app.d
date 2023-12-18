@@ -12,7 +12,10 @@ void main()
 	{
 
 		al_init();
-		auto mainloop = new MainLoop("krampus23");
+		auto mainloop = new MainLoop(MainConfig.of
+			.appName("krampus23")
+			.targetFps(60)
+		);
 		mainloop.init();
 		
 		mainloop.resources.addFile("data/DejaVuSans.ttf");

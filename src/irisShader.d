@@ -86,7 +86,7 @@ class IrisImageComponent : Component {
 		int iw = img.w;
 		int ih = img.h;
 		
-		fx.enable(t++, 0, 0);
+		fx.enable(t++ / 60.0, 0, 0); // TODO: get access to FPS rate here...
 		al_draw_scaled_bitmap(img.ptr, 0, 0, iw, ih, x, y, w, h, 0);
 		fx.disable();
 	}

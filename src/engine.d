@@ -126,10 +126,6 @@ class TitleState : State {
 		/* MENU */
 		buildDialog(window.resources.getJSON("title-layout"));
 		
-		getElementById("btn_start_game").onAction.add((e) { 
-			writeln("Pressed START");
-		});
-
 		getElementById("btn_credits").onAction.add((e) { 
 			RichTextBuilder builder = new RichTextBuilder()
 				.h1("Allegro Shader Toy")
