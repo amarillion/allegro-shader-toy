@@ -15,17 +15,17 @@ class IrisEffect {
 	static Bitmap gradient;
 	static string fragShaderSource;
 	static bool inited = false;
-	private Shader shader;
+	private static Shader shader;
 	
 	static init(ResourceManager resources) {
 		fragShaderSource = resources.shaders["iris_frag"];
 		gradient = resources.bitmaps["gradient"];
+		shader = Shader.ofFragment(fragShaderSource);
 		inited = true;
 	}
 
 	this() {
 		assert(inited, "Must call IrisEffect.init(resources) first");
-		shader = Shader.ofFragment(fragShaderSource);
 	}
 
 	void enable(float time, int ofstx, int ofsty) {

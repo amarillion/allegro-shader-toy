@@ -1,5 +1,6 @@
 module engine;
 
+import helix.allegro.shader;
 import helix.color;
 import helix.component;
 import helix.style;
@@ -121,21 +122,35 @@ class TitleState : State {
 	this(MainLoop window) {
 		super(window);
 
-		IrisEffect.init(window.resources);
+		try {
+			IrisEffect.init(window.resources);
 
-		/* MENU */
-		buildDialog(window.resources.getJSON("title-layout"));
-		
-		getElementById("btn_credits").onAction.add((e) { 
+			/* MENU */
+			buildDialog(window.resources.getJSON("title-layout"));
+			
+			getElementById("btn_credits").onAction.add((e) { 
+				RichTextBuilder builder = new RichTextBuilder()
+					.h1("Allegro Shader Toy")
+					.text("Play around with Shader programs in Allegro.").br()
+					.text("It was made by ").b("Amarillion").text(" for ").b("BugSquasher").text(" during KrampusHack 2023, a secret santa game jam.").p()
+					.h1("Happy holidays BugSquasher, and best wishes for 2024!")
+					.text("Coded by").p()
+					.link("Martijn 'Amarillion' van Iersel", "https://twitter.com/mpvaniersel").p();
+				openDialog(window, builder.build());
+			});
+		}
+		catch (ShaderException e) {
+			writeln(e.message);
+			/*
+			TODO: register a global exception handler that shows this dialog,
+			So that any exception can be handled this way.
+			*/
 			RichTextBuilder builder = new RichTextBuilder()
-				.h1("Allegro Shader Toy")
-				.text("Play around with Shader programs in Allegro.").br()
-				.text("It was made by ").b("Amarillion").text(" for ").b("BugSquasher").text(" during KrampusHack 2023, a secret santa game jam.").p()
-				.h1("Happy holidays BugSquasher, and best wishes for 2024!")
-				.text("Coded by").p()
-				.link("Martijn 'Amarillion' van Iersel", "https://twitter.com/mpvaniersel").p();
+				.h1("Error")
+				.text(to!string(e.message)).p();
 			openDialog(window, builder.build());
-		});
+		}
+
 
 	}
 
