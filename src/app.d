@@ -29,6 +29,7 @@ void main()
 
 		mainloop.styles.applyResource("style");
 
+		mainloop.onDisplaySwitch.add((switchIn) { if (switchIn) { writeln("Window switched in event called"); mainloop.resources.refreshAll(); }});
 		mainloop.addState("TitleState", new TitleState(mainloop));
 		mainloop.switchState("TitleState");
 

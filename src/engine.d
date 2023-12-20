@@ -125,6 +125,11 @@ class TitleState : State {
 		try {
 			IrisEffect.init(window.resources);
 
+			window.resources.shaders["iris_frag"].onReload.add(() {
+				writeln("Reloading shader");
+				IrisEffect.init(window.resources);
+			});
+
 			/* MENU */
 			buildDialog(window.resources.getJSON("title-layout"));
 			
