@@ -12,7 +12,7 @@ class Dialog : State {
 	this(MainLoop window, Component slotted = null) {
 		super(window);
 		
-		buildDialog(window.resources.getJSON("dialog-layout"));
+		buildDialog(window.resources.jsons["dialog-layout"]);
 
 		if (slotted) {
 			getElementById("div_slot").addChild(slotted);

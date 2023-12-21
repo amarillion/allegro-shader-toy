@@ -25,6 +25,14 @@
 			"height": 768
 		}
 	}, {
+		"type": "image",
+		"src": "mysha256x256",
+		"layout": {
+			"rule": "top-left",
+			"width": 256,
+			"height": 256
+		}
+	}, {
 		"type": "div",
 		"layout": {
 			"rule": "top-right",

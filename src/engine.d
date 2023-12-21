@@ -61,14 +61,27 @@ class State : Component {
 					break;
 				}
 				case "image": {
+					string src = eltData["src"].str;
 					if ("shader" in eltData) {
 						IrisImageComponent img = new IrisImageComponent(window);
-						img.img = window.resources.bitmaps[eltData["src"].str];
+						img.img = window.resources.bitmaps[src];
+						// Create extra lambda context so we don't share references to src. https://forum.dlang.org/post/vbekijbseskytuaojhxi@forum.dlang.org
+						() {
+							string boundSrc = src.dup;
+							IrisImageComponent boundImg = img;
+							window.resources.bitmaps.onReload.add((key) { if (key == boundSrc) { boundImg.img = window.resources.bitmaps[boundSrc]; }});
+						} ();
 						div = img;
 					}
 					else {
 						ImageComponent img = new ImageComponent(window);
-						img.img = window.resources.bitmaps[eltData["src"].str];
+						img.img = window.resources.bitmaps[src];
+						// Create extra lambda context so we don't share references to src. https://forum.dlang.org/post/vbekijbseskytuaojhxi@forum.dlang.org
+						() {
+							string boundSrc = src.dup;
+							ImageComponent boundImg = img;
+							window.resources.bitmaps.onReload.add((key) { if (key == boundSrc) { boundImg.img = window.resources.bitmaps[boundSrc]; }});
+						} ();
 						div = img;
 					}
 					break;
@@ -125,13 +138,22 @@ class TitleState : State {
 		try {
 			IrisEffect.init(window.resources);
 
-			window.resources.shaders["iris_frag"].onReload.add(() {
-				writeln("Reloading shader");
-				IrisEffect.init(window.resources);
+			window.resources.shaders.onReload.add((id) {
+				writefln("Reloading shader %s", id);
+				if (id == "iris_frag") {
+					IrisEffect.init(window.resources);
+				}
+			});
+
+			window.resources.bitmaps.onReload.add((id) {
+				writefln("Reloading bitmap %s", id);
+				if (id == "gradient") {
+					IrisEffect.init(window.resources);
+				}
 			});
 
 			/* MENU */
-			buildDialog(window.resources.getJSON("title-layout"));
+			buildDialog(window.resources.jsons["title-layout"]);
 			
 			getElementById("btn_credits").onAction.add((e) { 
 				RichTextBuilder builder = new RichTextBuilder()

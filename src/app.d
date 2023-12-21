@@ -26,6 +26,7 @@ void main()
 		mainloop.resources.addFile("data/gradient.png");
 		mainloop.resources.addFile("data/map3.png");
 		mainloop.resources.addFile("data/map3_2.png");
+		mainloop.resources.addFile("data/mysha256x256.png");
 
 		mainloop.styles.applyResource("style");
 
