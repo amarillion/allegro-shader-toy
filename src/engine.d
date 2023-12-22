@@ -69,7 +69,7 @@ class State : Component {
 						() {
 							string boundSrc = src.dup;
 							IrisImageComponent boundImg = img;
-							window.resources.bitmaps.onReload.add((key) { if (key == boundSrc) { boundImg.img = window.resources.bitmaps[boundSrc]; }});
+							window.resources.bitmaps.onReload[src].add({ boundImg.img = window.resources.bitmaps[boundSrc]; });
 						} ();
 						div = img;
 					}
@@ -80,7 +80,7 @@ class State : Component {
 						() {
 							string boundSrc = src.dup;
 							ImageComponent boundImg = img;
-							window.resources.bitmaps.onReload.add((key) { if (key == boundSrc) { boundImg.img = window.resources.bitmaps[boundSrc]; }});
+							window.resources.bitmaps.onReload[src].add({ boundImg.img = window.resources.bitmaps[boundSrc]; });
 						} ();
 						div = img;
 					}
@@ -138,18 +138,12 @@ class TitleState : State {
 		try {
 			IrisEffect.init(window.resources);
 
-			window.resources.shaders.onReload.add((id) {
-				writefln("Reloading shader %s", id);
-				if (id == "iris_frag") {
-					IrisEffect.init(window.resources);
-				}
+			window.resources.shaders.onReload["iris_frag"].add({
+				IrisEffect.init(window.resources);
 			});
 
-			window.resources.bitmaps.onReload.add((id) {
-				writefln("Reloading bitmap %s", id);
-				if (id == "gradient") {
-					IrisEffect.init(window.resources);
-				}
+			window.resources.bitmaps.onReload["gradient"].add({
+				IrisEffect.init(window.resources);
 			});
 
 			/* MENU */
