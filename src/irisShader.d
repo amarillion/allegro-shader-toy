@@ -29,13 +29,10 @@ class IrisEffect {
 	}
 
 	void enable(float time, int ofstx, int ofsty) {
-		shader.use(true);
-
-		al_set_shader_sampler(toStringz("gradientMap"), gradient.ptr, 1);
-		int[2] offset = [ ofstx, ofsty ];
-
-		al_set_shader_int_vector(toStringz("offset"), 2, &offset[0], 1);
-		al_set_shader_float(toStringz("time"), time);
+		shader.use(true)
+			.withSampler("gradientMap", gradient)
+			.withIntVector("offset", [ ofstx, ofsty ], 2, 1)
+			.withFloat("time", time);
 	}
 
 	void disable() {
