@@ -41,27 +41,23 @@ class IrisEffect {
 
 }
 
-class IrisImageComponent : Component {
-
+class ShaderComponent : Component {
 	Bitmap img = null;
 	IrisEffect fx;
 	int t = 0;
 
 	this(MainLoop window) {
 		super(window, "img");
-		fx = new IrisEffect();
+		fx = new IrisEffect(); // TODO replace hardcoded shader...
 	}
 
 	override void draw(GraphicsContext gc) {
-		assert(img);
-		
-		// stretch mode...
-		// TODO: allow other drawing modes...
-		int iw = img.w;
-		int ih = img.h;
-		
 		fx.enable(t++ / 60.0, 0, 0); // TODO: get access to FPS rate here...
-		al_draw_scaled_bitmap(img.ptr, 0, 0, iw, ih, x, y, w, h, 0);
+		
+		foreach (child; children) {
+			child.draw(gc);
+		}
+		
 		fx.disable();
 	}
 }

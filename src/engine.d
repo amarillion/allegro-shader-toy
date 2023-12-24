@@ -1,6 +1,7 @@
 module engine;
 
 import helix.allegro.shader;
+import helix.allegro.bitmap;
 import helix.color;
 import helix.component;
 import helix.style;
@@ -17,6 +18,7 @@ import std.conv;
 import std.math;
 import std.exception;
 import std.format;
+import std.path;
 
 import allegro5.allegro;
 import allegro5.allegro_primitives;
@@ -42,6 +44,51 @@ class State : Component {
 		buildDialogRecursive(this, data);
 	}
 
+	void buildSceneRecursive(Component parent, JSONValue data) {
+		assert(data.type == JSONType.ARRAY, "Expected JSON array");
+		foreach (eltData; data.array) {
+			// create child components
+			
+			Component div = null;
+			string type = eltData["type"].str;
+			switch(type) {
+				case "bitmap": {
+					string src = eltData["src"].str;
+					string key = baseName(stripExtension(src));
+					ImageComponent img = new ImageComponent(window);
+					Bitmap bmp = window.resources.bitmaps[key];
+					img.img = bmp;
+					// Create extra lambda context so we don't share references to src. https://forum.dlang.org/post/vbekijbseskytuaojhxi@forum.dlang.org
+					() {
+						string boundSrc = key.dup;
+						ImageComponent boundImg = img;
+						window.resources.bitmaps.onReload[key].add({ boundImg.img = window.resources.bitmaps[boundSrc]; });
+					} ();
+					img.setShape(0, 0, bmp.w, bmp.h); // TODO: automatic sizing should make it equal to image size by default
+					div = img;
+					break;
+				}
+				case "shader": {
+					auto shader = new ShaderComponent(window);
+					//TODO: configure parameters: fragSrc, vertSrc, samplers... and auto-reload them.
+					div = shader;
+					break;
+				}
+				default: assert(false, format("Unknown scene object type '%s'", type));
+			}
+
+			// TODO
+			// assert("layout" in eltData);
+			// div.layoutFromJSON(eltData["layout"].object);
+
+			parent.addChild(div);
+			if ("children" in eltData) {
+				buildSceneRecursive(div, eltData["children"]);
+			}
+		}
+
+	}
+
 	void buildDialogRecursive(Component parent, JSONValue data) {
 
 		assert(data.type == JSONType.ARRAY);
@@ -62,28 +109,15 @@ class State : Component {
 				}
 				case "image": {
 					string src = eltData["src"].str;
-					if ("shader" in eltData) {
-						IrisImageComponent img = new IrisImageComponent(window);
-						img.img = window.resources.bitmaps[src];
-						// Create extra lambda context so we don't share references to src. https://forum.dlang.org/post/vbekijbseskytuaojhxi@forum.dlang.org
-						() {
-							string boundSrc = src.dup;
-							IrisImageComponent boundImg = img;
-							window.resources.bitmaps.onReload[src].add({ boundImg.img = window.resources.bitmaps[boundSrc]; });
-						} ();
-						div = img;
-					}
-					else {
-						ImageComponent img = new ImageComponent(window);
-						img.img = window.resources.bitmaps[src];
-						// Create extra lambda context so we don't share references to src. https://forum.dlang.org/post/vbekijbseskytuaojhxi@forum.dlang.org
-						() {
-							string boundSrc = src.dup;
-							ImageComponent boundImg = img;
-							window.resources.bitmaps.onReload[src].add({ boundImg.img = window.resources.bitmaps[boundSrc]; });
-						} ();
-						div = img;
-					}
+					ImageComponent img = new ImageComponent(window);
+					img.img = window.resources.bitmaps[src];
+					// Create extra lambda context so we don't share references to src. https://forum.dlang.org/post/vbekijbseskytuaojhxi@forum.dlang.org
+					() {
+						string boundSrc = src.dup;
+						ImageComponent boundImg = img;
+						window.resources.bitmaps.onReload[src].add({ boundImg.img = window.resources.bitmaps[boundSrc]; });
+					} ();
+					div = img;
 					break;
 				}
 				case "pre": {
@@ -149,6 +183,10 @@ class TitleState : State {
 			/* MENU */
 			buildDialog(window.resources.jsons["title-layout"]);
 			
+			auto canvas = getElementById("canvas");
+			buildSceneRecursive(canvas, window.resources.jsons["scene-oilslick"]["scene"]);
+			//TODO: auto-reload style...
+
 			getElementById("btn_credits").onAction.add((e) { 
 				RichTextBuilder builder = new RichTextBuilder()
 					.h1("Allegro Shader Toy")

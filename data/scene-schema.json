@@ -1,0 +1,79 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "scene-schema",
+	"title": "Scene schema",
+	"description": "Configuration for a scene in allegro shader toy",
+	"type": "object",
+	"$defs": {
+		"node": {
+			"oneOf": [
+				{ "$ref": "#/$defs/shaderNode" },
+				{ "$ref": "#/$defs/bitmapNode" }
+			],
+			"unevaluatedProperties": false,
+			"properties": {
+				"type": {
+					"type": "string",
+					"enum": [ "shader", "bitmap", "text", "shape" ],
+					"description": "Type of node in the scene graph"
+				}
+			}
+		},
+		"shaderNode": {
+			"type": "object",
+			"required": ["type", "fragSrc"],
+			"properties": {
+				"type": {
+					"const": "shader"
+				},
+				"fragSrc": {
+					"type": "string",
+					"description": "Source file for a fragment shader."
+				},
+				"shaderConfig": {
+					"type": "object",
+					"description": "Shader configuration, to pass uniform values to the shader"
+				},
+				"children": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/node"
+					}
+				}
+			}
+		},
+		"bitmapNode": {
+			"type": "object",
+			"required": ["type", "src"],
+			"properties": {
+				"type": { "const": "bitmap" },
+				"x": { "type": "number" },
+				"y": { "type": "number" },
+				"src": {
+					"type": "string",
+					"description": "Path to a file. Relative paths are relative to the location of the scene file."
+				},
+				"children": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/node"
+					}
+				}
+			}
+		}
+	},
+	"properties": {
+		"config": {
+			"description": "Global configuration",
+			"type": "object"
+		},
+		"scene": {
+			"description": "Scene hierarchy",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/node"
+			}
+		}
+	},
+	"unevaluatedProperties": false
+}

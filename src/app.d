@@ -22,14 +22,17 @@ void main()
 		mainloop.resources.addFile("data/style.json");
 		mainloop.resources.addFile("data/title-layout.json");
 		mainloop.resources.addFile("data/dialog-layout.json");
+		
+		// files below are part of scene-oilslick and should not be hardcoded.
+		mainloop.resources.addFile("data/scene-oilslick.json");
 		mainloop.resources.addFile("data/iris_frag.glsl");
 		mainloop.resources.addFile("data/gradient.png");
 		mainloop.resources.addFile("data/map3.png");
 		mainloop.resources.addFile("data/map3_2.png");
 		mainloop.resources.addFile("data/mysha256x256.png");
+		// end of scene.
 
 		mainloop.styles.applyResource("style");
-
 		mainloop.onDisplaySwitch.add((switchIn) { if (switchIn) { writeln("Window switched in event called"); mainloop.resources.refreshAll(); }});
 		mainloop.addState("TitleState", new TitleState(mainloop));
 		mainloop.switchState("TitleState");

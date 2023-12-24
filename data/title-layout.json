@@ -8,29 +8,10 @@
 			"background": "#000080" 
 		}
 	}, {
-		"type": "image",
-		"src": "map3",
+		"id": "canvas",
+		"type": "div",
 		"layout": {
-			"rule": "top-left",
-			"width": 768,
-			"height": 768
-		}
-	}, {
-		"type": "image",
-		"src": "map3_2",
-		"shader": true,
-		"layout": {
-			"rule": "top-left",
-			"width": 768,
-			"height": 768
-		}
-	}, {
-		"type": "image",
-		"src": "mysha256x256",
-		"layout": {
-			"rule": "top-left",
-			"width": 256,
-			"height": 256
+			"rule": "stretch"
 		}
 	}, {
 		"type": "div",
