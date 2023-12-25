@@ -13,7 +13,7 @@
 			"type": "shader",
 			"fragSrc": "./iris_frag.glsl",
 			"shaderConfig": {
-				"gradient": { "bitmap": "./gradient.png" }
+				"gradientMap": { "bitmap": "./gradient.png" }
 			},
 			"children": [{
 				"type": "bitmap",

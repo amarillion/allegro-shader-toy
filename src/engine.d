@@ -25,7 +25,7 @@ import allegro5.allegro_primitives;
 import allegro5.allegro_font;
 import allegro5.allegro_ttf;
 
-import irisEffect;
+import shaderComponent;
 
 import std.json;
 
@@ -42,51 +42,6 @@ class State : Component {
 
 	void buildDialog(JSONValue data) {
 		buildDialogRecursive(this, data);
-	}
-
-	void buildSceneRecursive(Component parent, JSONValue data) {
-		assert(data.type == JSONType.ARRAY, "Expected JSON array");
-		foreach (eltData; data.array) {
-			// create child components
-			
-			Component div = null;
-			string type = eltData["type"].str;
-			switch(type) {
-				case "bitmap": {
-					string src = eltData["src"].str;
-					string key = baseName(stripExtension(src));
-					ImageComponent img = new ImageComponent(window);
-					Bitmap bmp = window.resources.bitmaps[key];
-					img.img = bmp;
-					// Create extra lambda context so we don't share references to src. https://forum.dlang.org/post/vbekijbseskytuaojhxi@forum.dlang.org
-					() {
-						string boundSrc = key.dup;
-						ImageComponent boundImg = img;
-						window.resources.bitmaps.onReload[key].add({ boundImg.img = window.resources.bitmaps[boundSrc]; });
-					} ();
-					img.setShape(0, 0, bmp.w, bmp.h); // TODO: automatic sizing should make it equal to image size by default
-					div = img;
-					break;
-				}
-				case "shader": {
-					auto shader = new ShaderComponent(window);
-					//TODO: configure parameters: fragSrc, vertSrc, samplers... and auto-reload them.
-					div = shader;
-					break;
-				}
-				default: assert(false, format("Unknown scene object type '%s'", type));
-			}
-
-			// TODO
-			// assert("layout" in eltData);
-			// div.layoutFromJSON(eltData["layout"].object);
-
-			parent.addChild(div);
-			if ("children" in eltData) {
-				buildSceneRecursive(div, eltData["children"]);
-			}
-		}
-
 	}
 
 	void buildDialogRecursive(Component parent, JSONValue data) {
@@ -164,28 +119,122 @@ class State : Component {
 	}
 }
 
+class SceneBuilder {
+
+	private ImageComponent buildBitmap(JSONValue eltData) {
+		string src = eltData["src"].str;
+		string key = baseName(stripExtension(src));
+		ImageComponent img = new ImageComponent(window);
+		Bitmap bmp = userResources.bitmaps[key];
+		img.img = bmp;
+		// Create extra lambda context so we don't share references to src. https://forum.dlang.org/post/vbekijbseskytuaojhxi@forum.dlang.org
+		() {
+			string boundSrc = key.dup;
+			ImageComponent boundImg = img;
+			userResources.bitmaps.onReload[key].add({ boundImg.img = userResources.bitmaps[boundSrc]; });
+		} ();
+		img.setShape(0, 0, bmp.w, bmp.h); // TODO: automatic sizing should make it equal to image size by default
+		return img;
+	}
+
+	private ShaderComponent buildShader(JSONValue eltData) {
+		string fragFile = eltData["fragSrc"].str;
+		string key = baseName(stripExtension(fragFile));
+		string fragSource = userResources.shaders[key];
+		auto shader = new ShaderComponent(window);
+		
+		shader.setFragSource(fragSource);
+
+		userResources.shaders.onReload[key].add({ shader.setFragSource(userResources.shaders[key]); });
+		
+		// now load bitmaps...
+		assert("shaderConfig" in eltData);
+		assert(eltData["shaderConfig"].type == JSONType.OBJECT);
+		JSONValue shaderConfig = eltData["shaderConfig"].object;
+		
+		foreach(string shaderVariable, value; shaderConfig) {
+			assert(value.type == JSONType.object);
+			if ("bitmap" in value.object) {
+				string sampler = value.object["bitmap"].str;
+				string samplerKey = baseName(stripExtension(sampler));
+				writefln("Detected sampler variable %s %s", shaderVariable, samplerKey);
+				shader.setSampler(shaderVariable, userResources.bitmaps[samplerKey]);
+				userResources.bitmaps.onReload[samplerKey].add({ shader.setSampler(shaderVariable, userResources.bitmaps[samplerKey]); });
+			}  
+		}
+
+		return shader;
+	}
+
+	private void buildSceneRecursive(Component parent, JSONValue data) {
+		assert(data.type == JSONType.ARRAY, "Expected JSON array");
+		foreach (eltData; data.array) {
+			// create child components
+			
+			Component div = null;
+			string type = eltData["type"].str;
+			switch(type) {
+				case "bitmap": {
+					div = buildBitmap(eltData);
+					break;
+				}
+				case "shader": {
+					div = buildShader(eltData);
+					break;
+				}
+				default: assert(false, format("Unknown scene object type '%s'", type));
+			}
+
+			parent.addChild(div);
+			if ("children" in eltData) {
+				buildSceneRecursive(div, eltData["children"]);
+			}
+		}
+
+	}
+	
+	private ResourceManager userResources;
+	private MainLoop window;
+
+	private this(MainLoop window, ResourceManager resources) {
+		userResources = resources;
+	}
+
+	public static fromJSON(MainLoop window, ResourceManager resources, Component parent, JSONValue data) {
+		SceneBuilder builder = new SceneBuilder(window, resources);
+		builder.buildSceneRecursive(parent, data);
+	}
+}
+
 class TitleState : State {
+
+	ResourceManager userResources;
 
 	this(MainLoop window) {
 		super(window);
 
 		try {
-			IrisEffect.init(window.resources);
 
-			window.resources.shaders.onReload["iris_frag"].add({
-				IrisEffect.init(window.resources);
-			});
+			userResources = new ResourceManager();
+			// files below are part of scene-oilslick and should not be hardcoded.
+			// TODO: extract references from scene json.
+			userResources.addFile("data/scene-oilslick.json");
+			userResources.addFile("data/iris_frag.glsl");
+			userResources.addFile("data/gradient.png");
+			userResources.addFile("data/map3.png");
+			userResources.addFile("data/map3_2.png");
+			userResources.addFile("data/mysha256x256.png");
+			// end of scene.
 
-			window.resources.bitmaps.onReload["gradient"].add({
-				IrisEffect.init(window.resources);
-			});
+			window.onDisplaySwitch.add((switchIn) { if (switchIn) { userResources.refreshAll(); }});
 
 			/* MENU */
 			buildDialog(window.resources.jsons["title-layout"]);
 			
 			auto canvas = getElementById("canvas");
-			buildSceneRecursive(canvas, window.resources.jsons["scene-oilslick"]["scene"]);
-			//TODO: auto-reload style...
+			
+			SceneBuilder.fromJSON(window, userResources, canvas, userResources.jsons["scene-oilslick"]["scene"]);
+			//TODO: auto-reload scene...
 
 			getElementById("btn_credits").onAction.add((e) { 
 				RichTextBuilder builder = new RichTextBuilder()
@@ -209,7 +258,6 @@ class TitleState : State {
 				.text(to!string(e.message)).p();
 			openDialog(window, builder.build());
 		}
-
 
 	}
 
