@@ -121,6 +121,53 @@ class State : Component {
 
 class SceneBuilder {
 
+	private void loadUserFiles(string baseDir, JSONValue data) {
+		assert(data.type == JSONType.ARRAY, "Expected JSON array");
+		foreach (eltData; data.array) {
+
+			// create child components
+			Component div = null;
+			string type = eltData["type"].str;
+			switch(type) {
+				case "bitmap": {
+					string bmpFile = eltData["src"].str;
+					// TODO: set root dir on ResourceManager, let it do the rebasing
+					string bmpRebased = buildNormalizedPath(baseDir, bmpFile);
+					userResources.addFile(bmpRebased);
+					break;
+				}
+				case "shader": {
+					// TODO: set root dir on ResourceManager, let it do the rebasing
+					string fragFile = eltData["fragSrc"].str;
+					string fragRebased = buildNormalizedPath(baseDir, fragFile);
+					userResources.addFile(fragRebased);
+					
+					assert("shaderConfig" in eltData);
+					assert(eltData["shaderConfig"].type == JSONType.OBJECT);
+					JSONValue shaderConfig = eltData["shaderConfig"].object;
+
+					foreach(string shaderVariable, value; shaderConfig) {
+						assert(value.type == JSONType.object);
+						if ("bitmap" in value.object) {
+							string sampler = value.object["bitmap"].str;
+							string samplerRebased = buildNormalizedPath(baseDir, sampler);
+							userResources.addFile(samplerRebased);
+						}
+					}
+
+					break;
+
+				}
+
+				default: assert(false, format("Unknown scene object type '%s'", type));
+			}
+
+			if ("children" in eltData) {
+				loadUserFiles(baseDir, eltData["children"]);
+			}
+		}
+	}
+
 	private ImageComponent buildBitmap(JSONValue eltData) {
 		string src = eltData["src"].str;
 		string key = baseName(stripExtension(src));
@@ -200,8 +247,13 @@ class SceneBuilder {
 		userResources = resources;
 	}
 
-	public static fromJSON(MainLoop window, ResourceManager resources, Component parent, JSONValue data) {
+	public static fromFile(MainLoop window, ResourceManager resources, Component parent, string filename) {
+		resources.addFile(filename);
+		string jsonKey = baseName(stripExtension(filename));
 		SceneBuilder builder = new SceneBuilder(window, resources);
+		auto data = resources.jsons[jsonKey]["scene"];
+		// TODO: add scene file hotloading...
+		builder.loadUserFiles(dirName(filename), data);
 		builder.buildSceneRecursive(parent, data);
 	}
 }
@@ -218,13 +270,14 @@ class TitleState : State {
 			userResources = new ResourceManager();
 			// files below are part of scene-oilslick and should not be hardcoded.
 			// TODO: extract references from scene json.
-			userResources.addFile("data/scene-oilslick.json");
-			userResources.addFile("data/iris_frag.glsl");
-			userResources.addFile("data/gradient.png");
-			userResources.addFile("data/map3.png");
-			userResources.addFile("data/map3_2.png");
-			userResources.addFile("data/mysha256x256.png");
+			// userResources.addFile("data/scene-oilslick.json");
+			// userResources.addFile("data/iris_frag.glsl");
+			// userResources.addFile("data/gradient.png");
+			// userResources.addFile("data/map3.png");
+			// userResources.addFile("data/map3_2.png");
+			// userResources.addFile("data/mysha256x256.png");
 			// end of scene.
+			string sceneFile = "data/scene1/scene-oilslick.json";
 
 			window.onDisplaySwitch.add((switchIn) { if (switchIn) { userResources.refreshAll(); }});
 
@@ -233,7 +286,7 @@ class TitleState : State {
 			
 			auto canvas = getElementById("canvas");
 			
-			SceneBuilder.fromJSON(window, userResources, canvas, userResources.jsons["scene-oilslick"]["scene"]);
+			SceneBuilder.fromFile(window, userResources, canvas, sceneFile);
 			//TODO: auto-reload scene...
 
 			getElementById("btn_credits").onAction.add((e) { 
