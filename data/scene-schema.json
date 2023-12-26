@@ -8,13 +8,14 @@
 		"node": {
 			"oneOf": [
 				{ "$ref": "#/$defs/shaderNode" },
-				{ "$ref": "#/$defs/bitmapNode" }
+				{ "$ref": "#/$defs/bitmapNode" },
+				{ "$ref": "#/$defs/rectNode" }
 			],
 			"unevaluatedProperties": false,
 			"properties": {
 				"type": {
 					"type": "string",
-					"enum": [ "shader", "bitmap", "text", "shape" ],
+					"enum": [ "shader", "bitmap", "text", "rect" ],
 					"description": "Type of node in the scene graph"
 				}
 			}
@@ -28,7 +29,11 @@
 				},
 				"fragSrc": {
 					"type": "string",
-					"description": "Source file for a fragment shader."
+					"description": "GLSL source file for a fragment shader."
+				},
+				"vertSrc": {
+					"type": "string",
+					"description": "GLSL source file for a vertex shader."
 				},
 				"shaderConfig": {
 					"type": "object",
@@ -53,6 +58,23 @@
 					"type": "string",
 					"description": "Path to a file. Relative paths are relative to the location of the scene file."
 				},
+				"children": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/node"
+					}
+				}
+			}
+		},
+		"rectNode": {
+			"type": "object",
+			"required": ["type", "x", "y", "w", "h"],
+			"properties": {
+				"type": { "const": "rect" },
+				"x": { "type": "number" },
+				"y": { "type": "number" },
+				"w": { "type": "number" },
+				"h": { "type": "number" },
 				"children": {
 					"type": "array",
 					"items": {

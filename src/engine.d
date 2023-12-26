@@ -138,10 +138,18 @@ class SceneBuilder {
 				}
 				case "shader": {
 					// TODO: set root dir on ResourceManager, let it do the rebasing
-					string fragFile = eltData["fragSrc"].str;
-					string fragRebased = buildNormalizedPath(baseDir, fragFile);
-					userResources.addFile(fragRebased);
-					
+					if ("fragSrc" in eltData) {
+						string fragFile = eltData["fragSrc"].str;
+						string fragRebased = buildNormalizedPath(baseDir, fragFile);
+						userResources.addFile(fragRebased);
+					}
+
+					if ("vertSrc" in eltData) {
+						string vertFile = eltData["vertSrc"].str;
+						string vertRebased = buildNormalizedPath(baseDir, vertFile);
+						userResources.addFile(vertRebased);
+					}
+
 					assert("shaderConfig" in eltData);
 					assert(eltData["shaderConfig"].type == JSONType.OBJECT);
 					JSONValue shaderConfig = eltData["shaderConfig"].object;
@@ -158,14 +166,25 @@ class SceneBuilder {
 					break;
 
 				}
-
-				default: assert(false, format("Unknown scene object type '%s'", type));
+				default: break; // pass through. some objects don't refer files
 			}
 
 			if ("children" in eltData) {
 				loadUserFiles(baseDir, eltData["children"]);
 			}
 		}
+	}
+
+	private Component buildRect(JSONValue eltData) {
+		Component result = new RectComponent(window);
+		// result.style.background = 0; // TODO
+		result.setShape(
+			cast(int)eltData["x"].integer, 
+			cast(int)eltData["y"].integer,
+			cast(int)eltData["w"].integer,
+			cast(int)eltData["h"].integer
+		);
+		return result;
 	}
 
 	private ImageComponent buildBitmap(JSONValue eltData) {
@@ -185,14 +204,30 @@ class SceneBuilder {
 	}
 
 	private ShaderComponent buildShader(JSONValue eltData) {
-		string fragFile = eltData["fragSrc"].str;
-		string key = baseName(stripExtension(fragFile));
-		string fragSource = userResources.shaders[key];
-		auto shader = new ShaderComponent(window);
-		
-		shader.setFragSource(fragSource);
+		string fragSource = "";
+		string vertSource = "";
 
-		userResources.shaders.onReload[key].add({ shader.setFragSource(userResources.shaders[key]); });
+		auto shader = new ShaderComponent(window);
+		if ("fragSrc" in eltData) {
+			string fragFile = eltData["fragSrc"].str;
+			string fragKey = baseName(stripExtension(fragFile));
+			fragSource = userResources.shaders[fragKey];
+			shader.setFragSource(fragSource);
+			userResources.shaders.onReload[fragKey].add({ 
+				shader.setFragSource(userResources.shaders[fragKey]); 
+			});
+		}
+		if ("vertSrc" in eltData) {
+			string vertFile = eltData["vertSrc"].str;
+			string vertKey = baseName(stripExtension(vertFile));
+			vertSource = userResources.shaders[vertKey];
+			shader.setVertSource(vertSource);
+			userResources.shaders.onReload[vertKey].add({ 
+				shader.setFragSource(userResources.shaders[vertKey]); 
+			});
+		}
+		
+		//TODO: currently only reloading fragSource...
 		
 		// now load bitmaps...
 		assert("shaderConfig" in eltData);
@@ -204,10 +239,12 @@ class SceneBuilder {
 			if ("bitmap" in value.object) {
 				string sampler = value.object["bitmap"].str;
 				string samplerKey = baseName(stripExtension(sampler));
-				writefln("Detected sampler variable %s %s", shaderVariable, samplerKey);
 				shader.setSampler(shaderVariable, userResources.bitmaps[samplerKey]);
 				userResources.bitmaps.onReload[samplerKey].add({ shader.setSampler(shaderVariable, userResources.bitmaps[samplerKey]); });
-			}  
+			}
+			else if ("float" in value.object) {
+				shader.setFloat(shaderVariable, value.object["float"].floating);
+			}
 		}
 
 		return shader;
@@ -227,6 +264,10 @@ class SceneBuilder {
 				}
 				case "shader": {
 					div = buildShader(eltData);
+					break;
+				}
+				case "rect": {
+					div = buildRect(eltData);
 					break;
 				}
 				default: assert(false, format("Unknown scene object type '%s'", type));
@@ -268,16 +309,9 @@ class TitleState : State {
 		try {
 
 			userResources = new ResourceManager();
-			// files below are part of scene-oilslick and should not be hardcoded.
-			// TODO: extract references from scene json.
-			// userResources.addFile("data/scene-oilslick.json");
-			// userResources.addFile("data/iris_frag.glsl");
-			// userResources.addFile("data/gradient.png");
-			// userResources.addFile("data/map3.png");
-			// userResources.addFile("data/map3_2.png");
-			// userResources.addFile("data/mysha256x256.png");
-			// end of scene.
-			string sceneFile = "data/scene1/scene-oilslick.json";
+			
+			// string sceneFile = "data/scene1/scene-oilslick.json";
+			string sceneFile = "data/scene2/scene-twirl.json";
 
 			window.onDisplaySwitch.add((switchIn) { if (switchIn) { userResources.refreshAll(); }});
 

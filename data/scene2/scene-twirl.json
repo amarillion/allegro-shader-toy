@@ -1,0 +1,24 @@
+{
+	"$schema": "../scene-schema.json",
+	"config": {
+
+	},
+	"scene": [
+		{
+			"type": "shader",
+			"fragSrc": "./twirl_frag.glsl",
+			"vertSrc": "./twirl_vert.glsl",
+			"shaderConfig": {
+				"textureMap": { "bitmap": "./fashionista-level5-tiled.png" }, 
+				"twirl_amount": { "float": 0.5 }
+			},
+			"children": [{
+				"type": "rect",
+				"x": 0,
+				"y": 0,
+				"w": 1024,
+				"h": 1024
+			}]
+		}
+	]
+}
