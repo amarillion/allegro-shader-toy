@@ -5,6 +5,9 @@ import helix.mainloop;
 import engine;
 import allegro5.allegro;
 import allegro5.allegro_audio;
+import helix.richtext;
+import dialog;
+import std.conv;
 
 void main()
 {
@@ -17,7 +20,19 @@ void main()
 			.targetFps(60)
 		);
 		mainloop.init();
-		
+
+		void showErrorDialog(Exception e) {
+			writeln(e.info);
+			RichTextBuilder builder = new RichTextBuilder()
+				.h1("Error")
+				.text(to!string(e.message)).p();
+			openDialog(mainloop, builder.build());
+		}
+
+		mainloop.onException.add((e) {
+			showErrorDialog(e);
+		});
+
 		mainloop.resources.addFile("data/DejaVuSans.ttf");
 		mainloop.resources.addFile("data/style.json");
 		mainloop.resources.addFile("data/title-layout.json");
@@ -28,7 +43,7 @@ void main()
 
 		mainloop.addState("TitleState", new TitleState(mainloop));
 		mainloop.switchState("TitleState");
-
+		
 		mainloop.run();
 
 		return 0;

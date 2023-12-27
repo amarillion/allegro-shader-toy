@@ -7,7 +7,7 @@ import engine;
 import helix.component;
 import helix.richtext;
 
-class Dialog : State {
+class Dialog : DialogBuilder {
 
 	this(MainLoop window, Component slotted = null) {
 		super(window);
