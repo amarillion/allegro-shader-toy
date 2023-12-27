@@ -309,6 +309,7 @@ class TitleState : State {
 		try {
 
 			userResources = new ResourceManager();
+			window.onClose.add(() { destroy(userResources); });
 			
 			// string sceneFile = "data/scene1/scene-oilslick.json";
 			string sceneFile = "data/scene2/scene-twirl.json";
