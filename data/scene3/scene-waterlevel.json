@@ -1,0 +1,25 @@
+{
+	"$schema": "../scene-schema.json",
+	"config": {
+
+	},
+	"scene": [
+		{
+			"type": "shader",
+			"fragSrc": "./water_frag.glsl",
+			"vertSrc": "./water_vert.glsl",
+			"shaderConfig": {
+				"textureMap": { "bitmap": "./map1fg.png" }
+			},
+			"children": [
+				{
+					"type": "rect",
+					"x": 0,
+					"y": 0,
+					"w": 1024,
+					"h": 1024
+				}
+			]
+		}
+	]
+}
