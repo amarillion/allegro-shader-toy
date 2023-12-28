@@ -1,0 +1,25 @@
+{
+	"$schema": "../scene-schema.json",
+	"config": {
+
+	},
+	"scene": [
+		{
+			"type": "bitmap",
+			"src": "./screenshot.png"
+		}, {
+			"type": "shader",
+			"fragSrc": "./frag_dissolve.glsl",
+			"shaderConfig": {
+			},
+			"children": [{
+				"type": "rect",
+				"x": 95,
+				"y": 380,
+				"w": 30,
+				"h": 80,
+				"fill": "#800000"
+			}]
+		}
+	]
+}

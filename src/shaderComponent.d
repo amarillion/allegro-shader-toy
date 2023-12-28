@@ -14,12 +14,14 @@ import helix.color;
 
 class RectComponent : Component {
 
+	ALLEGRO_COLOR fill = Color.BLUE;
+
 	this(MainLoop window) {
 		super(window, "rect");
 	}
 
 	override void draw(GraphicsContext gc) {
-		al_draw_filled_rectangle(x, y, w, h, Color.BLUE);
+		al_draw_filled_rectangle(x, y, x + w, y + h, fill);
 	}
 
 }

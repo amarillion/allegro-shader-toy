@@ -80,7 +80,8 @@
 					"items": {
 						"$ref": "#/$defs/node"
 					}
-				}
+				},
+				"fill": { "type": "string", "description": "Rectangle fill color, in HTML '#rrggbb' format." }
 			}
 		}
 	},

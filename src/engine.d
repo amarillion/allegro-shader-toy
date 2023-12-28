@@ -13,6 +13,7 @@ import helix.tilemap;
 import helix.widgets;
 import helix.richtext;
 
+import std.string;
 import std.stdio;
 import std.conv;
 import std.math;
@@ -22,6 +23,7 @@ import std.path;
 
 import allegro5.allegro;
 import allegro5.allegro_primitives;
+import allegro5.allegro_color;
 import allegro5.allegro_font;
 import allegro5.allegro_ttf;
 
@@ -176,7 +178,11 @@ class SceneBuilder {
 	}
 
 	private Component buildRect(JSONValue eltData) {
-		Component result = new RectComponent(window);
+		RectComponent result = new RectComponent(window);
+		if ("fill" in eltData) {
+			string colorStr = eltData["fill"].str;
+			result.fill = al_color_html(toStringz(colorStr));
+		}
 		// result.style.background = 0; // TODO
 		result.setShape(
 			cast(int)eltData["x"].integer, 
@@ -321,9 +327,10 @@ class TitleState : DialogBuilder {
 		
 		window.onInit.add({
 			// string sceneFile = "data/scene1/scene-oilslick.json";
-			string sceneFile = "data/scene2/scene-twirl.json";
+			// string sceneFile = "data/scene2/scene-twirl.json";
 			// string sceneFile = "data/scene3/scene-waterlevel.json";
-			
+			string sceneFile = "data/scene4/scene-peppy.json";
+
 			SceneBuilder.fromFile(window, userResources, canvas, sceneFile);
 			//TODO: auto-reload scene...
 		});
