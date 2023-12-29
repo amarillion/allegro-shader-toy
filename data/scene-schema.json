@@ -10,13 +10,14 @@
 				{ "$ref": "#/$defs/shaderNode" },
 				{ "$ref": "#/$defs/bitmapNode" },
 				{ "$ref": "#/$defs/rectNode" }
+				{ "$ref": "#/$defs/textNode" }
 			],
 			"unevaluatedProperties": false,
 			"properties": {
 				"type": {
 					"type": "string",
 					"enum": [ "shader", "bitmap", "text", "rect" ],
-					"description": "Type of node in the scene graph"
+					"description": "Type of node in the scene graph: a shader effect, a bitmap image, a text label, or a filled rectangle"
 				}
 			}
 		},
@@ -83,11 +84,29 @@
 				},
 				"fill": { "type": "string", "description": "Rectangle fill color, in HTML '#rrggbb' format." }
 			}
+		},
+		"textNode": {
+			"type": "object",
+			"required": ["type", "x", "y"],
+			"properties": {
+				"type": { "const": "text" },
+				"x": { "type": "number" },
+				"y": { "type": "number" },
+				"children": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/node"
+					}
+				},
+				"font": { "type": "string", "description": "path of a ttf file for the font you use" },
+				"fontSize": { "type": "number" },
+				"color": { "type": "string", "description": "Text color, in HTML '#rrggbb' format." }
+			}
 		}
 	},
 	"properties": {
 		"config": {
-			"description": "Global configuration",
+			"description": "Global configuration - just a placeholder at the moment",
 			"type": "object"
 		},
 		"scene": {

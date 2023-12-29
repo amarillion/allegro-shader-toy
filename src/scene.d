@@ -5,9 +5,27 @@ import allegro5.allegro_primitives;
 
 import helix.allegro.bitmap;
 import helix.allegro.shader;
+import helix.allegro.font;
 import helix.component;
 import helix.color;
 import helix.mainloop;
+import allegro5.allegro_font;
+import std.string;
+
+class TextComponent : Component {
+
+	Font font;
+	ALLEGRO_COLOR color;
+	string text;
+
+	this(MainLoop window) {
+		super(window, "text");
+	}
+
+	override void draw(GraphicsContext gc) {
+		al_draw_text(font.ptr, color, x, y, 0, toStringz(text));
+	}
+}
 
 class RectComponent : Component {
 

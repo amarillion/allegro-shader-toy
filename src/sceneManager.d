@@ -37,6 +37,15 @@ class SceneManager {
 					resources.addFile(bmpRebased);
 					break;
 				}
+				case "text": {
+					if ("font" in eltData) {
+						string fontFile = eltData["font"].str;
+						// TODO: set root dir on ResourceManager, let it do the rebasing
+						string fontRebased = buildNormalizedPath(baseDir, fontFile);
+						resources.addFile(fontRebased);
+					}
+					break;
+				}
 				case "shader": {
 					// TODO: set root dir on ResourceManager, let it do the rebasing
 					if ("fragSrc" in eltData) {
@@ -51,7 +60,7 @@ class SceneManager {
 						resources.addFile(vertRebased);
 					}
 
-					enforce("shaderConfig" in eltData);
+					enforce("shaderConfig" in eltData, "ShadeConfig is required for shader object");
 					enforce(eltData["shaderConfig"].type == JSONType.OBJECT);
 					JSONValue shaderConfig = eltData["shaderConfig"].object;
 
@@ -74,6 +83,41 @@ class SceneManager {
 				loadUserFiles(baseDir, eltData["children"]);
 			}
 		}
+	}
+
+	private Component buildText(JSONValue eltData) {
+
+		int fontSize = 12;
+		if ("fontSize" in eltData) {
+			enforce(eltData["fontSize"].type == JSONType.INTEGER);
+			fontSize = to!int(eltData["fontSize"].integer);
+		}
+		TextComponent result = new TextComponent(window);
+		if ("font" in eltData) {
+			string src = eltData["font"].str;
+			string fontKey = baseName(stripExtension(src));
+			result.font = resources.fonts[fontKey].get(fontSize);
+			resources.fonts.onReload[fontKey].add({
+				result.font = resources.fonts[fontKey].get(fontSize);
+			});
+		}
+		else {
+			result.font = resources.fonts["builtin_font"].get();
+		}
+
+		int x = to!int(eltData["x"].integer);
+		int y = to!int(eltData["y"].integer);
+
+		if ("color" in eltData) {
+			string color = eltData["color"].str;
+			result.color = al_color_html(toStringz(color));
+		}
+		else {
+			result.color = Color.BLACK;
+		}
+		result.text = eltData["text"].str;
+		result.setShape(x, y, 1, 1);
+		return result;
 	}
 
 	private Component buildRect(JSONValue eltData) {
@@ -173,6 +217,10 @@ class SceneManager {
 				}
 				case "rect": {
 					div = buildRect(eltData);
+					break;
+				}
+				case "text": {
+					div = buildText(eltData);
 					break;
 				}
 				default: enforce(false, format("Unknown scene object type '%s'", type));

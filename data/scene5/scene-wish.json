@@ -1,0 +1,31 @@
+{
+	"$schema": "../scene-schema.json",
+	"config": {
+
+	},
+	"scene": [
+		{
+			"type": "shader",
+			"fragSrc": "./frag_xmas.glsl",
+			"shaderConfig": {
+			},
+			"children": [{
+				"type": "text",
+				"font": "./Bangers-Regular.ttf",
+				"fontSize": 160,
+				"x": 20,
+				"y": 20,
+				"text": "Merry Xmas",
+				"color": "#FF00FF"
+			}, {
+				"type": "text",
+				"font": "./Bangers-Regular.ttf",
+				"fontSize": 160,
+				"x": 20,
+				"y": 200,
+				"text": "BugSquasher",
+				"color": "#FFFF00"
+			}]
+		}
+	]
+}
