@@ -1,9 +1,11 @@
-module sceneBuilder;
+module sceneManager;
 
 import std.string : toStringz, format;
 import std.conv : to;
 import std.json;
 import std.path;
+import std.exception;
+import std.stdio;
 
 import allegro5.allegro;
 import allegro5.allegro_color : al_color_html;
@@ -18,10 +20,10 @@ import helix.allegro.bitmap;
 
 import scene;
 
-class SceneBuilder {
+class SceneManager {
 
 	private void loadUserFiles(string baseDir, JSONValue data) {
-		assert(data.type == JSONType.ARRAY, "Expected JSON array");
+		enforce(data.type == JSONType.ARRAY, "Expected JSON array");
 		foreach (eltData; data.array) {
 
 			// create child components
@@ -32,7 +34,7 @@ class SceneBuilder {
 					string bmpFile = eltData["src"].str;
 					// TODO: set root dir on ResourceManager, let it do the rebasing
 					string bmpRebased = buildNormalizedPath(baseDir, bmpFile);
-					userResources.addFile(bmpRebased);
+					resources.addFile(bmpRebased);
 					break;
 				}
 				case "shader": {
@@ -40,25 +42,25 @@ class SceneBuilder {
 					if ("fragSrc" in eltData) {
 						string fragFile = eltData["fragSrc"].str;
 						string fragRebased = buildNormalizedPath(baseDir, fragFile);
-						userResources.addFile(fragRebased);
+						resources.addFile(fragRebased);
 					}
 
 					if ("vertSrc" in eltData) {
 						string vertFile = eltData["vertSrc"].str;
 						string vertRebased = buildNormalizedPath(baseDir, vertFile);
-						userResources.addFile(vertRebased);
+						resources.addFile(vertRebased);
 					}
 
-					assert("shaderConfig" in eltData);
-					assert(eltData["shaderConfig"].type == JSONType.OBJECT);
+					enforce("shaderConfig" in eltData);
+					enforce(eltData["shaderConfig"].type == JSONType.OBJECT);
 					JSONValue shaderConfig = eltData["shaderConfig"].object;
 
 					foreach(string shaderVariable, value; shaderConfig) {
-						assert(value.type == JSONType.object);
+						enforce(value.type == JSONType.object);
 						if ("bitmap" in value.object) {
 							string sampler = value.object["bitmap"].str;
 							string samplerRebased = buildNormalizedPath(baseDir, sampler);
-							userResources.addFile(samplerRebased);
+							resources.addFile(samplerRebased);
 						}
 					}
 
@@ -94,14 +96,12 @@ class SceneBuilder {
 		string src = eltData["src"].str;
 		string key = baseName(stripExtension(src));
 		ImageComponent img = new ImageComponent(window);
-		Bitmap bmp = userResources.bitmaps[key];
+		Bitmap bmp = resources.bitmaps[key];
 		img.img = bmp;
-		// Create extra lambda context so we don't share references to src. https://forum.dlang.org/post/vbekijbseskytuaojhxi@forum.dlang.org
-		() {
-			string boundSrc = key.dup;
-			ImageComponent boundImg = img;
-			userResources.bitmaps.onReload[key].add({ boundImg.img = userResources.bitmaps[boundSrc]; });
-		} ();
+		resources.bitmaps.onReload[key].add({ 
+			refreshSceneIfIncomplete();
+			img.img = resources.bitmaps[key]; 
+		});
 		img.setShape(0, 0, bmp.w, bmp.h); // TODO: automatic sizing should make it equal to image size by default
 		return img;
 	}
@@ -114,37 +114,37 @@ class SceneBuilder {
 		if ("fragSrc" in eltData) {
 			string fragFile = eltData["fragSrc"].str;
 			string fragKey = baseName(stripExtension(fragFile));
-			fragSource = userResources.shaders[fragKey];
+			fragSource = resources.shaders[fragKey];
 			shader.setFragSource(fragSource);
-			userResources.shaders.onReload[fragKey].add({ 
-				shader.setFragSource(userResources.shaders[fragKey]);
+			resources.shaders.onReload[fragKey].add({ 
+				refreshSceneIfIncomplete();
+				shader.setFragSource(resources.shaders[fragKey]);
 			});
 		}
 		if ("vertSrc" in eltData) {
 			string vertFile = eltData["vertSrc"].str;
 			string vertKey = baseName(stripExtension(vertFile));
-			vertSource = userResources.shaders[vertKey];
+			vertSource = resources.shaders[vertKey];
 			shader.setVertSource(vertSource);
-			userResources.shaders.onReload[vertKey].add({ 
-				shader.setFragSource(userResources.shaders[vertKey]); 
+			resources.shaders.onReload[vertKey].add({ 
+				refreshSceneIfIncomplete();
+				shader.setFragSource(resources.shaders[vertKey]); 
 			});
 		}
 		
-		//TODO: currently only reloading fragSource...
-		
-		// now load bitmaps...
-		assert("shaderConfig" in eltData);
-		assert(eltData["shaderConfig"].type == JSONType.OBJECT);
+		enforce("shaderConfig" in eltData);
+		enforce(eltData["shaderConfig"].type == JSONType.OBJECT);
 		JSONValue shaderConfig = eltData["shaderConfig"].object;
 		
 		foreach(string shaderVariable, value; shaderConfig) {
-			assert(value.type == JSONType.object);
+			enforce(value.type == JSONType.object);
 			if ("bitmap" in value.object) {
 				string sampler = value.object["bitmap"].str;
 				string samplerKey = baseName(stripExtension(sampler));
-				shader.setSampler(shaderVariable, userResources.bitmaps[samplerKey]);
-				userResources.bitmaps.onReload[samplerKey].add({ 
-					shader.setSampler(shaderVariable, userResources.bitmaps[samplerKey]); 
+				shader.setSampler(shaderVariable, resources.bitmaps[samplerKey]);
+				resources.bitmaps.onReload[samplerKey].add({
+					refreshSceneIfIncomplete();
+					shader.setSampler(shaderVariable, resources.bitmaps[samplerKey]); 
 				});
 			}
 			else if ("float" in value.object) {
@@ -154,9 +154,9 @@ class SceneBuilder {
 
 		return shader;
 	}
-
+	
 	private void buildSceneRecursive(Component parent, JSONValue data) {
-		assert(data.type == JSONType.ARRAY, "Expected JSON array");
+		enforce(data.type == JSONType.ARRAY, "Expected JSON array");
 		foreach (eltData; data.array) {
 			// create child components
 			
@@ -175,7 +175,7 @@ class SceneBuilder {
 					div = buildRect(eltData);
 					break;
 				}
-				default: assert(false, format("Unknown scene object type '%s'", type));
+				default: enforce(false, format("Unknown scene object type '%s'", type));
 			}
 
 			parent.addChild(div);
@@ -186,22 +186,57 @@ class SceneBuilder {
 
 	}
 	
-	private ResourceManager userResources;
+	private ResourceManager resources;
 	private MainLoop window;
+	private Component rootComponent;
+	private string jsonKey;
+	private string filename;
 
-	private this(MainLoop window, ResourceManager resources) {
-		userResources = resources;
+	private this(MainLoop window, ResourceManager resources, Component rootComponent, string jsonKey, string filename) {
+		this.window = window;
+		this.resources = resources;
+		this.rootComponent = rootComponent;
+		this.jsonKey = jsonKey;
+		this.filename = filename;
 	}
 
-	public static fromFile(MainLoop window, ResourceManager resources, Component parent, string filename) {
-		resources.addFile(filename);
-		string jsonKey = baseName(stripExtension(filename));
-		SceneBuilder builder = new SceneBuilder(window, resources);
-		auto data = resources.jsons[jsonKey]["scene"];
-		// TODO: add scene file hotloading...
-		builder.loadUserFiles(dirName(filename), data);
-		builder.buildSceneRecursive(parent, data);
+	bool sceneComplete = false;
 
+	private void refreshSceneIfIncomplete() {
+		if (!sceneComplete) {
+			writeln("Rebuilding incompete scene");
+			rootComponent.clearChildren();
+			JSONValue rootData = resources.jsons[jsonKey]["scene"];
+			buildSceneRecursive(rootComponent, rootData);
+			window.calculateLayout(); // TODO: this call should not be necessary, window should know layout is dirty...
+			sceneComplete = true;
+		}
+	}
+
+	void buildScene() {
+		sceneComplete = false;
+		JSONValue rootData = resources.jsons[jsonKey]["scene"];
+		loadUserFiles(dirName(filename), rootData);
+		buildSceneRecursive(rootComponent, rootData);
 		window.calculateLayout(); // TODO: this call should not be necessary, window should know layout is dirty...
+		sceneComplete = true; // reached here without intervening exceptions.
+	}
+
+	public static SceneManager buildFromFile(MainLoop window, ResourceManager resources, Component parent, string filename) {
+		enforce(extension(filename) == ".json", format("Scene file [%s] must have .json extension", filename));
+		
+		string key = baseName(stripExtension(filename));
+		resources.addFile(filename);
+		
+		SceneManager builder = new SceneManager(window, resources, parent, key, filename);
+		
+		resources.jsons.onReload[key].add({
+			writeln("Scene file has changed, reloading...");
+			builder.buildScene();
+		});
+
+		builder.buildScene();
+
+		return builder;
 	}
 }

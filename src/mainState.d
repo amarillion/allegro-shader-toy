@@ -7,22 +7,25 @@ import helix.richtext;
 import scene;
 import dialog;
 import dialogBuilder;
-import sceneBuilder;
+import sceneManager;
 
 import std.json;
 
 class MainState : DialogBuilder {
 
+	SceneManager sceneManager;
 	ResourceManager userResources;
 
 	this(MainLoop window) {
 		super(window);
 
-		
 		userResources = new ResourceManager();
+
 		window.onClose.add(() { destroy(userResources); });
 		
-		window.onDisplaySwitch.add((switchIn) { if (switchIn) { userResources.refreshAll(); }});
+		window.onDisplaySwitch.add((switchIn) { 
+			if (switchIn) { userResources.refreshAll(); }
+		});
 
 		/* MENU */
 		buildDialog(window.resources.jsons["title-layout"]);
@@ -34,8 +37,7 @@ class MainState : DialogBuilder {
 			// string sceneFile = "data/scene2/scene-twirl.json";
 			// string sceneFile = "data/scene3/scene-waterlevel.json";
 			string sceneFile = "data/scene4/scene-peppy.json";
-
-			SceneBuilder.fromFile(window, userResources, canvas, sceneFile);
+			sceneManager = SceneManager.buildFromFile(window, userResources, canvas, sceneFile);
 			//TODO: auto-reload scene...
 		});
 
