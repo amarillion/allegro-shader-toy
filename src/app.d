@@ -1,13 +1,16 @@
 module app;
 
 import std.stdio;
-import helix.mainloop;
-import engine;
+import std.conv;
+
 import allegro5.allegro;
 import allegro5.allegro_audio;
+
+import helix.mainloop;
 import helix.richtext;
+
 import dialog;
-import std.conv;
+import mainState;
 
 void main()
 {
@@ -41,8 +44,8 @@ void main()
 
 		mainloop.onDisplaySwitch.add((switchIn) { if (switchIn) { writeln("Window switched in event called"); mainloop.resources.refreshAll(); }});
 
-		mainloop.addState("TitleState", new TitleState(mainloop));
-		mainloop.switchState("TitleState");
+		mainloop.addState("MainState", new MainState(mainloop));
+		mainloop.switchState("MainState");
 		
 		mainloop.run();
 

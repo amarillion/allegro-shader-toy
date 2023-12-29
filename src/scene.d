@@ -1,16 +1,13 @@
-module shaderComponent;
+module scene;
+
+import allegro5.allegro;
+import allegro5.allegro_primitives;
 
 import helix.allegro.bitmap;
 import helix.allegro.shader;
-import helix.resources;
-import allegro5.allegro;
-import allegro5.allegro_primitives;
-import allegro5.shader;
-import std.string : toStringz;
-import std.conv : to;
 import helix.component;
-import helix.mainloop;
 import helix.color;
+import helix.mainloop;
 
 class RectComponent : Component {
 

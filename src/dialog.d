@@ -1,11 +1,13 @@
 module dialog;
 
 import std.stdio;
+
 import helix.mainloop;
 import helix.widgets;
-import engine;
 import helix.component;
 import helix.richtext;
+
+import dialogBuilder;
 
 class Dialog : DialogBuilder {
 

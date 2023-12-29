@@ -1,125 +1,22 @@
-module engine;
+module sceneBuilder;
 
-import helix.allegro.shader;
-import helix.allegro.bitmap;
-import helix.color;
-import helix.component;
-import helix.style;
-import helix.resources;
-import helix.mainloop;
-import helix.util.vec;
-import helix.util.rect;
-import helix.tilemap;
-import helix.widgets;
-import helix.richtext;
-
-import std.string;
-import std.stdio;
-import std.conv;
-import std.math;
-import std.exception;
-import std.format;
+import std.string : toStringz, format;
+import std.conv : to;
+import std.json;
 import std.path;
 
 import allegro5.allegro;
-import allegro5.allegro_primitives;
-import allegro5.allegro_color;
-import allegro5.allegro_font;
-import allegro5.allegro_ttf;
+import allegro5.allegro_color : al_color_html;
+import allegro5.shader;
 
-import shaderComponent;
+import helix.resources;
+import helix.component;
+import helix.mainloop;
+import helix.color;
+import helix.widgets;
+import helix.allegro.bitmap;
 
-import std.json;
-
-import dialog;
-
-class DialogBuilder : Component {
-
-	this(MainLoop window) {
-		super(window, "default");
-	}
-
-	//TODO: I want to move this registry to window...
-	private Component[string] componentRegistry;
-
-	void buildDialog(JSONValue data) {
-		buildDialogRecursive(this, data);
-	}
-
-	void buildDialogRecursive(Component parent, JSONValue data) {
-
-		assert(data.type == JSONType.ARRAY);
-
-		foreach (eltData; data.array) {
-			// create child components
-		
-			Component div = null;
-			string type = eltData["type"].str;
-			switch(type) {
-				case "button": {
-					div = new Button(window);
-					break;
-				}
-				case "richtext": {
-					div = new RichText(window);
-					break;
-				}
-				case "image": {
-					string src = eltData["src"].str;
-					ImageComponent img = new ImageComponent(window);
-					img.img = window.resources.bitmaps[src];
-					// Create extra lambda context so we don't share references to src. https://forum.dlang.org/post/vbekijbseskytuaojhxi@forum.dlang.org
-					() {
-						string boundSrc = src.dup;
-						ImageComponent boundImg = img;
-						window.resources.bitmaps.onReload[src].add({ boundImg.img = window.resources.bitmaps[boundSrc]; });
-					} ();
-					div = img;
-					break;
-				}
-				case "pre": {
-					auto pre = new PreformattedText(window);
-					div = pre;
-					break;
-				}
-				default: div = new Component(window, "div"); break;
-			}
-
-			assert("layout" in eltData);
-			div.layoutFromJSON(eltData["layout"].object);
-
-			if ("text" in eltData) {
-				div.text = eltData["text"].str;
-			}
-			
-			// override local style. TODO: make more generic
-			if ("style" in eltData) {
-				div.setLocalStyle(eltData["style"]);
-			}
-
-			if ("id" in eltData) {
-				div.id = eltData["id"].str;
-				componentRegistry[div.id] = div;
-			}
-
-			parent.addChild(div);
-			if ("children" in eltData) {
-				buildDialogRecursive(div, eltData["children"]);
-			}
-		}
-	}
-
-	Component getElementById(string id) {
-		enforce(id in componentRegistry, format("Component '%s' not found", id));
-		return componentRegistry[id];
-	}
-
-	override void draw(GraphicsContext gc) {
-		foreach (child; children) {
-			child.draw(gc);
-		}
-	}
-}
+import scene;
 
 class SceneBuilder {
 
@@ -246,7 +143,9 @@ class SceneBuilder {
 				string sampler = value.object["bitmap"].str;
 				string samplerKey = baseName(stripExtension(sampler));
 				shader.setSampler(shaderVariable, userResources.bitmaps[samplerKey]);
-				userResources.bitmaps.onReload[samplerKey].add({ shader.setSampler(shaderVariable, userResources.bitmaps[samplerKey]); });
+				userResources.bitmaps.onReload[samplerKey].add({ 
+					shader.setSampler(shaderVariable, userResources.bitmaps[samplerKey]); 
+				});
 			}
 			else if ("float" in value.object) {
 				shader.setFloat(shaderVariable, value.object["float"].floating);
@@ -305,47 +204,4 @@ class SceneBuilder {
 
 		window.calculateLayout(); // TODO: this call should not be necessary, window should know layout is dirty...
 	}
-}
-
-class TitleState : DialogBuilder {
-
-	ResourceManager userResources;
-
-	this(MainLoop window) {
-		super(window);
-
-		
-		userResources = new ResourceManager();
-		window.onClose.add(() { destroy(userResources); });
-		
-		window.onDisplaySwitch.add((switchIn) { if (switchIn) { userResources.refreshAll(); }});
-
-		/* MENU */
-		buildDialog(window.resources.jsons["title-layout"]);
-		
-		auto canvas = getElementById("canvas");
-		
-		window.onInit.add({
-			// string sceneFile = "data/scene1/scene-oilslick.json";
-			// string sceneFile = "data/scene2/scene-twirl.json";
-			// string sceneFile = "data/scene3/scene-waterlevel.json";
-			string sceneFile = "data/scene4/scene-peppy.json";
-
-			SceneBuilder.fromFile(window, userResources, canvas, sceneFile);
-			//TODO: auto-reload scene...
-		});
-
-		getElementById("btn_credits").onAction.add((e) { 
-			RichTextBuilder builder = new RichTextBuilder()
-				.h1("Allegro Shader Toy")
-				.text("Play around with Shader programs in Allegro.").br()
-				.text("It was made by ").b("Amarillion").text(" for ").b("BugSquasher").text(" during KrampusHack 2023, a secret santa game jam.").p()
-				.h1("Happy holidays BugSquasher, and best wishes for 2024!")
-				.text("Coded by").p()
-				.link("Martijn 'Amarillion' van Iersel", "https://twitter.com/mpvaniersel").p();
-			openDialog(window, builder.build());
-		});
-
-	}
-
 }
