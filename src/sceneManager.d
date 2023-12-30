@@ -194,6 +194,9 @@ class SceneManager {
 			else if ("float" in value.object) {
 				shader.setFloat(shaderVariable, value.object["float"].floating);
 			}
+			else if ("int" in value.object) {
+				shader.setInt(shaderVariable, to!int(value.object["int"].integer));
+			}
 		}
 
 		return shader;

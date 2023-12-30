@@ -48,6 +48,7 @@ class ShaderComponent : Component {
 
 	private Bitmap[string] samplers;
 	private float[string] floats;
+	private int[string] ints;
 
 	void setSampler(string name, Bitmap bitmap) {
 		samplers[name] = bitmap;
@@ -82,6 +83,10 @@ class ShaderComponent : Component {
 		floats[name] = value;
 	}
 
+	void setInt(string name, int value) {
+		ints[name] = value;
+	}
+
 	public this(MainLoop window) {
 		super(window, "shader");
 	}
@@ -95,9 +100,9 @@ class ShaderComponent : Component {
 		foreach(k, v; floats) {
 			setter.withFloat(k, v);
 		}
-
-		//TODO: remnant from iris_frag. Move to config
-		setter.withIntVector("offset", [ 0, 0 ], 2, 1);
+		foreach(k, v; ints) {
+			setter.withInt(k, v);
+		}
 		
 		setter.withFloat("time", t++ / 60.0);
 		
