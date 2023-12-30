@@ -1,29 +1,26 @@
 #version 130
 
-// derived from OpenGL Dev Cookbook Ch 3. 
-// https://github.com/bagobor/opengl33_dev_cookbook_2013/blob/master/Chapter3/TwirlFilter/TwirlFilter/shaders/shader.vert
-
 precision mediump float;
 
 out vec4 vFragColor;	//fragment shader output
 
-//input from the vertex shader
-smooth in vec2 vUV;						//2D texture coordinates
-
 //shader uniforms
-uniform sampler2D textureMap;			//the image to ripple
-uniform float time;				        //time
+uniform float time;         // time in seconds
+uniform float waterHeight;  // water level in pixels from the top
 
-//TODO: take into account water height...
+uniform sampler2D al_tex;
+varying vec2 varying_texcoord;
 
 void main()
 {
+    vec2 uv = varying_texcoord; // just a shorter alias
+    vec2 size = textureSize(al_tex, 0);
     float frequency = 50.0;
     float amplitude = 4.0;
-    float speed = 10.0;
+    float speed = 6.0;
+    float waterHeightFrac = 1.0 - 1.0 / size.y * waterHeight;
 
-	vec2 uv = vUV;
-
+    // calculate a ripple distortion vector
     // inspired by: https://shaderfrog.com/app/view/145
     vec2 ripple = vec2(
         sin(  (length( uv ) * frequency ) + ( time * speed ) ),
@@ -31,10 +28,16 @@ void main()
     // Scale amplitude to make input more convenient for users
     ) * ( amplitude / 1000.0 );
 
-    vec3 color = texture(textureMap, uv + ripple).rgb;
+    vec2 uvAdj = uv + ripple;
 
-    vFragColor = vec4( color, 1.0 );
+    // if we're above the water height, ignore ripple effect.
+    if (uvAdj.y > waterHeightFrac) {
+        vFragColor = texture(al_tex, uv);
+        return;
+    }
 
-   //shift by 0.5 to bring it back to original unshifted position
-   //vFragColor = texture(textureMap, (shifted+0.5));
+    vFragColor = texture(al_tex, uvAdj);
+
+    // give it a blue tint
+    vFragColor *= vec4(0.7, 0.75, 1.1, 1.0);
 }
