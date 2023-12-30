@@ -16,11 +16,14 @@
 	}, {
 		"type": "div",
 		"layout": {
-			"rule": "top-right",
-			"top": 20,
-			"right": 20,
-			"width": 340,
-			"height": 40
+			"rule": "stretch-right",
+			"top": 0,
+			"bottom": 0,
+			"right": 0,
+			"width": 176
+		},
+		"style": {
+			"background": "lightgrey"
 		},
 		"children": [
 			{
@@ -28,10 +31,22 @@
 				"type": "button",
 				"text": "Credits",
 				"layout": {
-					"rule": "top-left",
-					"left": 180,
+					"rule": "top-right",
+					"top": 8,
+					"right": 8,
 					"width": 160,
-					"height": 40
+					"height": 32
+				}
+			}, {
+				"id": "btn_default_shaders",
+				"type": "button",
+				"text": "Default Shaders",
+				"layout": {
+					"rule": "top-right",
+					"top": 48,
+					"right": 8,
+					"width": 160,
+					"height": 32
 				}
 			}
 		]

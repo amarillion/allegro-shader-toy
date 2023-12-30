@@ -1,5 +1,10 @@
 module mainState;
 
+import std.json;
+import std.conv;
+
+import allegro5.shader;
+
 import helix.resources;
 import helix.mainloop;
 import helix.richtext;
@@ -8,8 +13,6 @@ import scene;
 import dialog;
 import dialogBuilder;
 import sceneManager;
-
-import std.json;
 
 class MainState : DialogBuilder {
 
@@ -46,6 +49,25 @@ class MainState : DialogBuilder {
 				.h1("Happy holidays BugSquasher, and best wishes for 2024!")
 				.text("Coded by").p()
 				.link("Martijn 'Amarillion' van Iersel", "https://twitter.com/mpvaniersel").p();
+			openDialog(window, builder.build());
+		});
+
+		string fragSrc = to!string(al_get_default_shader_source(
+			ALLEGRO_SHADER_PLATFORM.ALLEGRO_SHADER_AUTO, 
+			ALLEGRO_SHADER_TYPE.ALLEGRO_VERTEX_SHADER
+		));
+		
+		string vertSrc = to!string(al_get_default_shader_source(
+			ALLEGRO_SHADER_PLATFORM.ALLEGRO_SHADER_AUTO, 
+			ALLEGRO_SHADER_TYPE.ALLEGRO_PIXEL_SHADER
+		));
+		
+		getElementById("btn_default_shaders").onAction.add((e) { 
+			RichTextBuilder builder = new RichTextBuilder()
+				.h1("Default Vertex Shader")
+				.lines(fragSrc).p()
+				.h1("Default Pixel Shader")
+				.lines(vertSrc).p();
 			openDialog(window, builder.build());
 		});
 
