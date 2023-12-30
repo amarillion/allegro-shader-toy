@@ -12,8 +12,27 @@ import helix.richtext;
 import dialog;
 import mainState;
 
-void main()
+void main(string[] args)
 {
+	string sceneFile;
+
+	// string sceneFile = "data/scene1/scene-oilslick.json";
+	// string sceneFile = "data/scene2/scene-twirl.json";
+	// string sceneFile = "data/scene3/scene-waterlevel.json";
+	// string sceneFile = "data/scene4/scene-peppy.json";
+	// string sceneFile = "data/scene5/scene-wish.json";
+	
+	if (args.length == 2) {
+		sceneFile = args[1];
+	}
+	else if (args.length > 2) {
+		writeln("Unexpected arguments. Must specify exactly one argument");
+	}
+	else {
+		writeln("Must specify the scene file as argument");
+		return;
+	}
+
 	al_run_allegro(
 	{
 
@@ -44,7 +63,7 @@ void main()
 
 		mainloop.onDisplaySwitch.add((switchIn) { if (switchIn) { writeln("Window switched in event called"); mainloop.resources.refreshAll(); }});
 
-		mainloop.addState("MainState", new MainState(mainloop));
+		mainloop.addState("MainState", new MainState(mainloop, sceneFile));
 		mainloop.switchState("MainState");
 		
 		mainloop.run();

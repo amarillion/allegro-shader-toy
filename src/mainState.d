@@ -16,7 +16,7 @@ class MainState : DialogBuilder {
 	SceneManager sceneManager;
 	ResourceManager userResources;
 
-	this(MainLoop window) {
+	this(MainLoop window, string sceneFile) {
 		super(window);
 
 		userResources = new ResourceManager();
@@ -33,11 +33,6 @@ class MainState : DialogBuilder {
 		auto canvas = getElementById("canvas");
 		
 		window.onInit.add({
-			// string sceneFile = "data/scene1/scene-oilslick.json";
-			// string sceneFile = "data/scene2/scene-twirl.json";
-			// string sceneFile = "data/scene3/scene-waterlevel.json";
-			// string sceneFile = "data/scene4/scene-peppy.json";
-			string sceneFile = "data/scene5/scene-wish.json";
 			sceneManager = SceneManager.buildFromFile(window, userResources, canvas, sceneFile);
 			//TODO: auto-reload scene...
 		});
