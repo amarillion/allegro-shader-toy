@@ -2,7 +2,25 @@
 
 A little toy program to play with shaders in Allegro.
 
-I created this for [KrampusHack 2023](https://tins.amarillion.org/krampu23/).
+I created this for [KrampusHack 2023](https://tins.amarillion.org/krampu23/) for _Bugsquasher_. Happy holidays Bugsquasher!
+
+## KrampusHack 2023
+
+Here was Bugsquashers wishlist:
+
+	Tax my new gfx card's abilities. Bet you can't make it drop under 60FPS lol right.
+
+	I want a graphics program. Whether it draws, allows you to draw, or just looks groovy I don't care.
+
+	Use shaders to draw cool stuff, allegro should help with this if you're interested in using Allegro again, I don't care.
+
+	Final optional wish is an options list that can change attributes of the shader in use.
+
+	Most importantly, learn something, have fun, don't stress it...
+
+The allegro shader toy is my interpretation of this wishlist. It is definitely a program that uses shaders to draw cool stuff. 
+I don't think any of the examples I included will make it drop under 60FPS, although you could easily write a really inefficient shader that will do so.
+Finally, the program allows you to change the float and int attributes of shaders using the shaderConfig of your scene files.
 
 ## How to use this program
 
@@ -25,7 +43,8 @@ help you write correct JSON that is understood by the program.
 In your scene file, you can define four different objects:
   * Filled rectangles, with x, y, w, h and fill properties.
   * Bitmaps, with a src property.
-  * Shaders, with fragSrc, vertSrc, and shader 
+  * Shaders, with fragSrc, vertSrc, and shaderConfig. 
+    Through the shaderConfig you can pass float, int and texture uniform variables to your shader program.
 
 These scene objects can be nested, so they form a _scene graph_.
 
