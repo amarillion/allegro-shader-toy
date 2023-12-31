@@ -66,3 +66,15 @@ the bitmap that you're drawing in `al_tex`. The coordinate within the texture (n
 will be in `varying_texcoord`. 
 
 To make it easy on yourself, stick with the Allegro conventions as much as possible.
+
+## Source code & Dependencies
+
+You can find the source code for this program on github:
+
+https://github.com/amarillion/allegro-shader-toy
+
+To compile you'll also need my experimental D+Allegro Game engine called Dtwist:
+
+https://github.com/amarillion/dtwist/
+
+Other dependencies are [D](https://dlang.org), [Allegro](https://liballeg.org), and [DAllegro](https://github.com/SiegeLord/DAllegro5)
