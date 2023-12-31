@@ -4,6 +4,11 @@ A little toy program to play with shaders in Allegro.
 
 I created this for [KrampusHack 2023](https://tins.amarillion.org/krampu23/) for _Bugsquasher_. Happy holidays Bugsquasher!
 
+## Tutorial video
+
+This concept is perhaps unusual for a speedhack. So to make it more clear, I decided to create a tutorial video.
+You can watch it on youtube: [Allegro Shader Toy Tutorial](https://www.youtube.com/watch?v=uOgsUEA0tM0)
+
 ## KrampusHack 2023
 
 Here was Bugsquashers wishlist:
