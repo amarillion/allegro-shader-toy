@@ -1,15 +1,15 @@
 {
-	"$schema": "../scene-schema.json",
+	"$schema": "https://raw.githubusercontent.com/amarillion/allegro-shader-toy/master/data/scene-schema.json",
 	"config": {
 
 	},
 	"scene": [
 		{
 			"type": "bitmap",
-			"src": "./screenshot.png"
+			"src": "./peppy/screenshot.png"
 		}, {
 			"type": "shader",
-			"fragSrc": "./frag_dissolve.glsl",
+			"fragSrc": "./peppy/frag_dissolve.glsl",
 			"shaderConfig": {
 			},
 			"children": [{

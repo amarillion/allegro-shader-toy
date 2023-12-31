@@ -1,0 +1,29 @@
+{
+	"$schema": "https://raw.githubusercontent.com/amarillion/allegro-shader-toy/master/data/scene-schema.json",
+	"config": {
+
+	},
+	"scene": [
+		{
+			"type": "bitmap",
+			"x": 0,
+			"y": 0,
+			"src": "./oilslick/map3.png"
+		}, {
+			"type": "shader",
+			"fragSrc": "./oilslick/iris_frag.glsl",
+			"shaderConfig": {
+				"gradientMap": { "bitmap": "./oilslick/gradient.png" },
+				"ofstx": { "int": 0 },
+				"ofsty": { "int": 0 }
+			},
+			"children": [{
+				"type": "bitmap",
+				"src": "./oilslick/map3_2.png"
+			}]
+		}, {
+			"type": "bitmap",
+			"src": "./oilslick/mysha256x256.png"
+		}
+	]
+}

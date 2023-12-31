@@ -1,17 +1,17 @@
 {
-	"$schema": "../scene-schema.json",
+	"$schema": "https://raw.githubusercontent.com/amarillion/allegro-shader-toy/master/data/scene-schema.json",
 	"config": {
 
 	},
 	"scene": [
 		{
 			"type": "shader",
-			"fragSrc": "./frag_xmas.glsl",
+			"fragSrc": "./wish/frag_xmas.glsl",
 			"shaderConfig": {
 			},
 			"children": [{
 				"type": "text",
-				"font": "./Bangers-Regular.ttf",
+				"font": "./wish/Bangers-Regular.ttf",
 				"fontSize": 160,
 				"x": 20,
 				"y": 20,
@@ -19,7 +19,7 @@
 				"color": "#FF00FF"
 			}, {
 				"type": "text",
-				"font": "./Bangers-Regular.ttf",
+				"font": "./wish/Bangers-Regular.ttf",
 				"fontSize": 160,
 				"x": 20,
 				"y": 200,

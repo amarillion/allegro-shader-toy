@@ -1,0 +1,19 @@
+{
+	"$schema": "https://raw.githubusercontent.com/amarillion/allegro-shader-toy/master/data/scene-schema.json",
+	"config": {
+
+	},
+	"scene": [
+		{
+			"type": "shader",
+			"fragSrc": "./waterlevel/water_frag.glsl",
+			"shaderConfig": {
+				"waterHeight": { "float": 200.0 }
+			},
+			"children": [{
+				"type": "bitmap", 
+				"src": "./waterlevel/screenshot-laundryDay.png"
+			}]
+		}
+	]
+}
