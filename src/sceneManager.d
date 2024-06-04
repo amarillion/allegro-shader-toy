@@ -128,10 +128,10 @@ class SceneManager {
 		}
 		// result.style.background = 0; // TODO
 		result.setShape(
-			cast(int)eltData["x"].integer, 
-			cast(int)eltData["y"].integer,
-			cast(int)eltData["w"].integer,
-			cast(int)eltData["h"].integer
+			to!int(eltData["x"].integer), 
+			to!int(eltData["y"].integer),
+			to!int(eltData["w"].integer),
+			to!int(eltData["h"].integer)
 		);
 		return result;
 	}
@@ -146,7 +146,9 @@ class SceneManager {
 			refreshSceneIfIncomplete();
 			img.img = resources.bitmaps[key]; 
 		});
-		img.setShape(0, 0, bmp.w, bmp.h); // TODO: automatic sizing should make it equal to image size by default
+		int x = to!int(eltData["x"].integer);
+		int y = to!int(eltData["y"].integer);
+		img.setShape(x, y, bmp.w, bmp.h); // TODO: automatic sizing should make it equal to image size by default
 		return img;
 	}
 
@@ -196,6 +198,17 @@ class SceneManager {
 			}
 			else if ("int" in value.object) {
 				shader.setInt(shaderVariable, to!int(value.object["int"].integer));
+			}
+			else if ("bool" in value.object) {
+				shader.setBool(shaderVariable, value.object["bool"].boolean);
+			}
+			else if ("vecf" in value.object) {
+				auto array = value.object["vecf"].array;
+				float[] data = [];
+				foreach(val; array) {
+					data ~= val.floating;
+				}
+				shader.setVecf(shaderVariable, data);
 			}
 		}
 

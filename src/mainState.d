@@ -62,7 +62,15 @@ class MainState : DialogBuilder {
 			ALLEGRO_SHADER_TYPE.ALLEGRO_PIXEL_SHADER
 		));
 		
-		getElementById("btn_default_shaders").onAction.add((e) { 
+		getElementById("btn_default_shaders").onAction.add((e) {
+			//dump to console to make it copy-pastable
+			import std.stdio;
+			writeln("*** Fragment Shader ***");
+			writeln(fragSrc);
+			writeln("*** Vertex Shader ***");
+			writeln(vertSrc);
+			writeln("***");
+
 			RichTextBuilder builder = new RichTextBuilder()
 				.h1("Default Vertex Shader")
 				.lines(fragSrc).p()

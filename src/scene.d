@@ -1,7 +1,10 @@
 module scene;
 
+import std.string;
+
 import allegro5.allegro;
 import allegro5.allegro_primitives;
+import allegro5.allegro_font;
 
 import helix.allegro.bitmap;
 import helix.allegro.shader;
@@ -9,8 +12,7 @@ import helix.allegro.font;
 import helix.component;
 import helix.color;
 import helix.mainloop;
-import allegro5.allegro_font;
-import std.string;
+import helix.util.vec;
 
 class TextComponent : Component {
 
@@ -49,6 +51,8 @@ class ShaderComponent : Component {
 	private Bitmap[string] samplers;
 	private float[string] floats;
 	private int[string] ints;
+	private bool[string] bools;
+	private float[][string] vecfs;
 
 	void setSampler(string name, Bitmap bitmap) {
 		samplers[name] = bitmap;
@@ -87,6 +91,14 @@ class ShaderComponent : Component {
 		ints[name] = value;
 	}
 
+	void setVecf(string name, float[] value) {
+		vecfs[name] = value;
+	}
+
+	void setBool(string name, bool value) {
+		bools[name] = value;
+	}
+
 	public this(MainLoop window) {
 		super(window, "shader");
 	}
@@ -103,7 +115,13 @@ class ShaderComponent : Component {
 		foreach(k, v; ints) {
 			setter.withInt(k, v);
 		}
-		
+		foreach(k, v; vecfs) {
+			setter.withFloatVector(k, v);
+		}
+		foreach(k, v; bools) {
+			setter.withBool(k, v);
+		}
+
 		setter.withFloat("time", t++ / 60.0);
 		
 		foreach (child; children) {
