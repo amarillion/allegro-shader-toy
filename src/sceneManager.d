@@ -268,7 +268,7 @@ class SceneManager {
 
 	private void refreshSceneIfIncomplete() {
 		if (!sceneComplete) {
-			writeln("Rebuilding incompete scene");
+			writeln("Rebuilding incomplete scene");
 			rootComponent.clearChildren();
 			JSONValue rootData = resources.jsons[jsonKey]["scene"];
 			buildSceneRecursive(rootComponent, rootData);
@@ -278,6 +278,7 @@ class SceneManager {
 	}
 
 	void buildScene() {
+		rootComponent.clearChildren();
 		sceneComplete = false;
 		JSONValue rootData = resources.jsons[jsonKey]["scene"];
 		loadUserFiles(dirName(filename), rootData);
