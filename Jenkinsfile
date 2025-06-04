@@ -14,8 +14,7 @@ node {
 				withEnv(['HOME=.']) {
 					sh "dub -v build"
 
-					// TODO: tests fail with error 'Source file '/home/martijn/prg/gamedev/allegro-shader-toy/dtwist/src/helix/allegro/audiostream.d' not found in any import path.'
-					// sh "dub -v test"
+					sh "dub -v test"
 				}
 			}
 		}
